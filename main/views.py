@@ -28,6 +28,7 @@ def login_view(request):
 
 
 def signup_view(request):
+    # Add form validation to login/ signup pages too
 
     if request.user.is_authenticated:
         return redirect(home)
@@ -59,7 +60,28 @@ def home(request):
     # Django function to fetch the current user. Gives AnonymousUser/ Null as output if not logged in.
     current_user = request.user
 
-    return render(request, 'main/base.html', {'username_value':current_user.username})
+    return render(request, 'main/home.html')
+
+
+@login_required
+def new_post(request):
+    # Django function to fetch the current user. Gives AnonymousUser/ Null as output if not logged in.
+    # Add Form validation as a part of JS, to filter our invalid inputs
+
+    current_user = request.user
+
+    if request.method=='POST':
+        print("PRINTING POST DATA ",request.POST)
+
+        new_post = PostData.objects.create(Title=request.POST.get('title', None),
+                                            Author=current_user,
+                                            Category=request.POST.get('category', None),
+                                            Body=request.POST.get('body', None)
+                                            )
+        
+        return redirect(home)
+
+    return render(request, 'main/new_post.html')
 
 
 '''

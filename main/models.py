@@ -37,6 +37,6 @@ class PostData(models.Model):
 
     def __str__(self):
         try:
-            return (self.Title + " by "+self.Author.username + " | "+ str(self.Time))
+            return (self.Title + " by "+self.Author.username + " | "+ str(self.Time) + " | PK="+str(self.pk))
         except:
             return("Blog Post")    

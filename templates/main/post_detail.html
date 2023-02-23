@@ -1,0 +1,22 @@
+{%extends "main/base.html"%}
+
+{%block content%}
+
+<div class="container" style="margin-top: 3%;">
+
+{% if current_post %}
+
+    <h1>{{current_post.Title}}</h1>
+<h6 style="color: grey;">Posted by <a href="#" style="color: black;">{{current_post.Author.username}}</a> at <a style="color: black;">{{current_post.Time}}</a> <a href="#"><b style="color: green;">{{current_post.Category}}</b></a></h6>
+
+<p>{{current_post.Body}}</p>
+
+{% else %}
+
+<h1>Page Unavailable</h1>
+
+{% endif %}
+
+</div>
+
+{%endblock%}

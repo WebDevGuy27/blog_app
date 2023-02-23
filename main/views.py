@@ -60,7 +60,45 @@ def home(request):
     # Django function to fetch the current user. Gives AnonymousUser/ Null as output if not logged in.
     current_user = request.user
 
-    return render(request, 'main/home.html')
+    all_posts = PostData.objects.all() # Returns a list of post data objects(instance of a class which has functions/ variable)
+
+    # print(type(all_posts))
+    # <class 'django.db.models.query.QuerySet'>
+
+    post_list = []
+    
+    for i in all_posts:
+        post_dict = {}
+        post_dict['title'] = i.Title
+        post_dict['pk'] = i.pk
+        post_dict['author'] = i.Author
+        post_dict['category'] = i.Category
+        post_dict['brief'] = i.Body[:250]
+        post_dict['brief_required'] = len(i.Body)>250 
+        # so if len(i.Body)>250 condition is true "len(i.Body)>250" is parsed as True
+        post_dict['time'] = i.Time
+        post_list.append(post_dict)
+
+    return render(request, 'main/home.html',{"post_data_list": post_list})
+
+
+@login_required
+def post_detail(request, primary_key):
+    # Django function to fetch the current user. Gives AnonymousUser/ Null as output if not logged in.
+    current_user = request.user
+
+    try:
+        current_post = PostData.objects.get(pk=primary_key)
+    except:
+        current_post = None
+
+
+
+    # current_post = PostData.objects.filter(Category="Tech") -> Returns a list of objects
+    # Exlore more around ,None in .get 
+    # current_post = PostData.objects.get(pk=primary_key, None) -> returns one single object
+
+    return render(request, 'main/post_detail.html', {"current_post": current_post})
 
 
 @login_required

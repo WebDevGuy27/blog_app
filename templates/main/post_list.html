@@ -1,0 +1,48 @@
+{%extends "main/base.html"%}
+
+{%block content%}
+
+<div class="container" style="margin-top: 5%;">
+
+{% if page_type == "category" %}
+
+  <h2>{{current_category}}</h2>
+
+{% elif page_type == "my_posts" %}
+
+  <h2>My Posts</h2>
+
+{% elif page_type == "home" %}
+
+<h2>Welcome !</h2>
+
+{% endif %}
+
+{% for post in filtered_posts %}
+
+<div class="container" style="margin-top: 3%;">
+
+    
+
+    <h2><a {% if page_type == "my_posts" %}  href="{% url 'edit_post' primary_key=post.pk %}" {% else %} href="{% url 'post_detail' primary_key=post.pk %}" {% endif %}>{{post.title}}</a></h2>
+    <h6 style="color: grey;">Posted by <a href="#" style="color: black;">{{post.author.username}}</a> at <a style="color: black;">{{post.time}}</a> <a href="{% url 'category_page' current_category=post.category %}"><b style="color: green;">{{post.category}}</b></a></h6>
+    <div style="max-width: 80%;">
+        {% if post.brief_required %}
+        
+        <p>{{post.brief}} ... <a href="{% url 'post_detail' primary_key=post.pk %}">Read more</a></p>
+
+        {% else %}        
+        
+        <p>{{post.brief}}</p>
+
+        {% endif %}
+    </div>
+  </div>
+
+
+
+  {% endfor %}
+
+</div>
+
+{%endblock%}

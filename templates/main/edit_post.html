@@ -1,0 +1,67 @@
+{%extends "main/base.html"%}
+
+{%block content%}
+
+{%if message %}
+<script>
+    alert("{{message}}");
+</script>
+{% endif %}  
+
+<div class="container" style="margin-top: 5%; margin-bottom: 5%; padding-left: 10%; padding-right: 10%;">
+
+  {% if current_post %}
+
+    {% if access_value %}
+
+
+    <h1 style="text-align: center;">Edit post</h1>
+
+<form method="POST">
+    {%csrf_token%}
+    <div class="mb-3">
+      <label for="title" class="form-label">Title</label>
+      <input name="title" type="text" class="form-control" value="{{current_post.Title}}" id="title" />
+      <div id="titleHelp" class="form-text">Please enter the title of your post</div>
+    </div>
+ 
+
+    <div class="mb-3 col">
+        <label for="body" class="form-label">Body</label>
+        <textarea class="form-control" name="body" id="body" rows="3">{{current_post.Body}}</textarea>
+        <div id="bodyHelp" class="form-text">Please enter the body of your post</div>
+      </div>
+
+    <div class="mb-3 col">
+      <label for="category" class="form-label">Category</label>
+      <select name="category" id="category" class="form-select" aria-label="Default select example">
+        <option >Category</option>
+        <option {% if current_post.Category == "Cooking" %} selected {% endif %} value="Cooking">Cooking</option>     
+        <option {% if current_post.Category == "Entertaiment" %} selected {% endif %} value="Entertaiment">Entertainment</option>
+        <option {% if current_post.Category == "Tech" %} selected {% endif %} value="Tech">Tech</option>
+        <option {% if current_post.Category == "News" %} selected {% endif %} value="News">News</option>
+      </select>
+      <div id="categoryHelp" class="form-text">Please select the category of your post</div>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+      <label class="form-check-label" for="exampleCheck1">Accept T&C</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+        {% else %}
+        <h1 style="text-align: center;">You Don't have access to this Page</h1>
+        {% endif %}
+
+  {% else %}
+
+  <h1 style="text-align: center;">Page Unavailable</h1>
+
+  {% endif %}
+
+</div>
+
+
+{%endblock%}

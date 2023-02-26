@@ -3,6 +3,7 @@ from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def login_view(request):
@@ -35,11 +36,12 @@ def signup_view(request):
 
     if request.method=='POST':
         print("PRINTING SIGN UP POST DATA ",request.POST)
-        new_user = User.objects.create_user(username=request.POST.get('username',None), email=request.POST.get('email',None), password=request.POST.get('password',None))
-        new_user_data = UserData.objects.create(Name=request.POST.get('name',None),
-                                                Gender=request.POST.get('gender',None),
-                                                Age=request.POST.get('age',None),
-                                                Email=request.POST.get('email',None),
+        new_user = User.objects.create_user(username=request.POST.get('username',None), 
+                                            email=request.POST.get('email',None), 
+                                            password=request.POST.get('password',None),
+                                            first_name=request.POST.get('name',None))
+        new_user_data = UserData.objects.create(Gender=request.POST.get('gender',None),
+                                                Age=request.POST.get('age',None),                                                
                                                 About=request.POST.get('about',None),
                                                 user_account = new_user
                                                 )
@@ -55,7 +57,6 @@ def logout_view(request):
 
     return redirect(home)
 
-@login_required
 def home(request):
     # Django function to fetch the current user. Gives AnonymousUser/ Null as output if not logged in.
     current_user = request.user
@@ -82,7 +83,7 @@ def home(request):
 
     return render(request, 'main/post_list.html',{"filtered_posts": post_list, "page_type": page_type})
 
-@login_required
+
 def category_page(request, current_category):
     # Django function to fetch the current user. Gives AnonymousUser/ Null as output if not logged in.
     current_user = request.user
@@ -177,7 +178,6 @@ def edit_post(request, primary_key):
 
     return render(request, 'main/edit_post.html', {"current_post": current_post, "access_value": access_available, "message": message})
 
-@login_required
 def post_detail(request, primary_key):
     # Django function to fetch the current user. Gives AnonymousUser/ Null as output if not logged in.
     current_user = request.user
@@ -188,12 +188,49 @@ def post_detail(request, primary_key):
         current_post = None
 
 
+    filtered_comments = CommentData.objects.filter(Post=current_post)
+
+    if request.method=='GET':
+        try:
+            comment_page = request.GET.get('comment_page', 1)
+            # print("PRINTING GET REQUEST DICTIONARY ",request.GET)
+        except:
+            comment_page = 1
+    else:
+        comment_page = 1    
+
+    paginator = Paginator(filtered_comments, 3)
+
+    try: 
+        comment_data = paginator.page(comment_page)
+    except:
+        comment_data = paginator.page(1)
+
+    logged_in = current_user.is_authenticated
+
+    if request.method=='POST':
+        new_comment = CommentData.objects.create(Comment=request.POST['comment'], Post=current_post)
+        
+        if logged_in:
+            new_comment.Author = current_user
+            new_comment.Name = current_user.first_name
+            new_comment.Email = current_user.email
+        elif request.POST['name']!='':
+            new_comment.Name = request.POST['name']
+            new_comment.Email = request.POST['email']
+
+
+        new_comment.save()
+
+        return redirect(post_detail, primary_key=primary_key)
+            
+
 
     # current_post = PostData.objects.filter(Category="Tech") -> Returns a list of objects
     # Exlore more around ,None in .get 
     # current_post = PostData.objects.get(pk=primary_key, None) -> returns one single object
 
-    return render(request, 'main/post_detail.html', {"current_post": current_post})
+    return render(request, 'main/post_detail.html', {"current_post": current_post, "logged_in": logged_in, "comment_data": comment_data})
 
 
 

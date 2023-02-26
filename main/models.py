@@ -15,17 +15,15 @@ default="SAMPLE" : If no value is being set, use this default value while creati
 '''
 
 class UserData(models.Model):
-    Name=models.CharField(max_length=100)
     # In choices the left one is actual value, right one is display value. The display value is what we see
     # IN the admin page.
     Gender=models.CharField(max_length=32,choices=[('M','Male'),('F','Female'),('NA','NA')])
     Age=models.IntegerField(null = True, blank=True)
-    Email=models.EmailField()
     About=models.TextField()
     user_account = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return (self.Name + " | "+self.Email)
+        return (self.user_account.first_name + " | "+self.user_account.email)
 
 
 class PostData(models.Model):
@@ -39,4 +37,18 @@ class PostData(models.Model):
         try:
             return (self.Title + " by "+self.Author.username + " | "+ str(self.Time) + " | PK="+str(self.pk))
         except:
-            return("Blog Post")    
+            return("Blog Post")
+
+class CommentData(models.Model):
+    Author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    Post = models.ForeignKey(PostData, on_delete=models.CASCADE)
+    Name = models.CharField(max_length=100, default="Anonymous")
+    Email = models.EmailField(null=True, blank=True)
+    Comment = models.TextField()
+    Time = models.DateTimeField(null = True,auto_now = True)
+
+    def __str__(self):
+        try:
+            return ("Comment on " + self.Post.Title +" by "+ self.Name)
+        except:
+            return("Post Comment")    
